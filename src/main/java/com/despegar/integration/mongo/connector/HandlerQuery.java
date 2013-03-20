@@ -38,7 +38,7 @@ public class HandlerQuery {
 
     public HandlerQuery put(String key, Object value) {
 
-        if (key != null && value != null) {
+        if (key != null) {
             this.getFilters().put(key, value);
         }
 
