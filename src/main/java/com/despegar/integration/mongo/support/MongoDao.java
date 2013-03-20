@@ -114,6 +114,10 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.coll.findAndModify(query, fields, sort, remove, update, returnNew, upsert);
     }
 
+    public List<T> distinct(String key) {
+        return this.coll.distinct(key);
+    }
+
     public String insert(T value) {
         return this.insert(value, WriteConcern.NORMAL);
     }
@@ -202,4 +206,6 @@ public class MongoDao<T extends IdentificableEntity> {
         DBCollection coll = this.mongoDb.getCollection(collection);
         coll.ensureIndex(index);
     }
+
+
 }

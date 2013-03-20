@@ -75,4 +75,11 @@ public interface Handler<T extends IdentificableEntity> {
      */
     Integer count(HandlerQuery query);
 
+
+    /**
+     * Returns distinct {@link IdentificableEntity} values for a key
+     * @param key
+     * @return
+     */
+    List<T> distinct(String key);
 }

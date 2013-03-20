@@ -98,4 +98,8 @@ public class MongoHandler<T extends IdentificableEntity>
     public void setMongoDaoFactory(final MongoDaoFactory mongoDaoFactory) {
         this.mongoDaoFactory = mongoDaoFactory;
     }
+
+    public List<T> distinct(String key) {
+        return this.mongoDao.distinct(key);
+    }
 }
