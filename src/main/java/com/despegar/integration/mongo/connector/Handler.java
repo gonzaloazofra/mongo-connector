@@ -77,9 +77,9 @@ public interface Handler<T extends IdentificableEntity> {
 
 
     /**
-     * Returns distinct {@link IdentificableEntity} values for a key
+     * Returns distinct values for a key
      * @param key
      * @return
      */
-    List<T> distinct(String key);
+    List distinct(String key);
 }
