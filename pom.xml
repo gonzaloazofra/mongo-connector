@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>scm-master-pom</artifactId>
 		<groupId>com.despegar.scm</groupId>
-		<version>1.0.6</version>
+		<version>1.0.7</version>
 	</parent>
 	<groupId>com.despegar.integration</groupId>
 	<artifactId>mongo-connector</artifactId>
@@ -19,12 +20,20 @@
 
 	<developers>
 		<developer>
+			<name>Juan Manuel Formoso</name>
+			<email>jformoso@despegar.com</email>
+			<id>jformoso</id>
+			<url>http://seniorgeek.com.ar</url>
+			<roles>
+				<role>author</role>
+			</roles>
+		</developer>
+		<developer>
 			<name>Juan Francisco Montanaro</name>
 			<email>jmontanaro@despegar.com</email>
 			<id>jmontanaro</id>
 		</developer>
 	</developers>
-
 
 	<properties>
 		<mongo-jackson-mapper.version>2.0</mongo-jackson-mapper.version>
@@ -32,18 +41,22 @@
 		<commons-lang.version>2.6</commons-lang.version>
 	</properties>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 			<version>${commons-lang.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
 			<version>3.0.7.RELEASE</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20090211</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-collections</groupId>
@@ -58,12 +71,27 @@
 		<dependency>
 			<groupId>net.vz.mongodb.jackson</groupId>
 			<artifactId>mongo-jackson-mapper</artifactId>
-			<version>2.0</version>
+			<version>${mongo-jackson-mapper.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>13.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-mongodb</artifactId>
+			<version>${spring-mongodb.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>spring-beans</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>spring-expression</artifactId>
+					<groupId>org.springframework</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 </project>

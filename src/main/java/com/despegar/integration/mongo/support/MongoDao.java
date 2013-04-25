@@ -29,14 +29,7 @@ public class MongoDao<T extends IdentificableEntity> {
     private JacksonDBCollection<T, Object> coll;
 
     public MongoDao(DB mongoDb, String collection, Class<T> clazz) {
-        this.mongoDb = mongoDb;
-        this.clazz = clazz;
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
-        mapper.setSerializationInclusion(Include.NON_NULL);
-
-        this.coll = JacksonDBCollection.wrap(this.mongoDb.getCollection(collection), this.clazz, Object.class, mapper);
+        this(mongoDb, collection, new ObjectMapper(), clazz);
     }
 
     public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz) {
@@ -114,7 +107,7 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.coll.findAndModify(query, fields, sort, remove, update, returnNew, upsert);
     }
 
-    public List distinct(String key) {
+    public List<?> distinct(String key) {
         return this.coll.distinct(key);
     }
 

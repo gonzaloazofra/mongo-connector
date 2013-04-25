@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+		http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
+
+	<mongo:mongo id="db.mongo" replica-set="${mongo.replicaSet}">
+		<mongo:options slave-ok="${mongo.slaveOk:false}"
+			connections-per-host="${mongo.connectionsPerHost:100}" />
+	</mongo:mongo>
+
+	<alias alias="mongo.objectMapper.alias" name="${mongo.objectMapper:mongo.default.objectMapper}" />
+
+	<bean id="mongo.factory" class="com.despegar.integration.mongo.support.MongoDaoFactory"
+		p:dbName="${mongo.dbName}" p:mapper-ref="mongo.objectMapper.alias" />
+
+	<bean id="mongo.default.objectMapper" class="com.fasterxml.jackson.databind.ObjectMapper" />
+</beans>
