@@ -1,7 +1,6 @@
 package com.despegar.integration.mongo.support;
 
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.despegar.integration.domain.api.IdentificableEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,12 +29,7 @@ public class MongoDaoFactory
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.db = this.mongoDBConnection.getDB(this.dbName);
-    }
-
-    @Autowired
-    void setMongoDBConnection(Mongo mongoDBConnection) {
-        this.mongoDBConnection = mongoDBConnection;
+        this.db = this.getMongoDBConnection().getDB(this.dbName);
     }
 
     public void setDbName(String dbName) {
@@ -44,6 +38,14 @@ public class MongoDaoFactory
 
     public void setMapper(ObjectMapper mapper) {
         this.mapper = mapper;
+    }
+
+    public Mongo getMongoDBConnection() {
+        return this.mongoDBConnection;
+    }
+
+    public void setMongoDBConnection(Mongo mongoDBConnection) {
+        this.mongoDBConnection = mongoDBConnection;
     }
 
 }

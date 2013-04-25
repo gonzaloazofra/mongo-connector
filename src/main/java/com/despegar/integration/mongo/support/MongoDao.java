@@ -199,6 +199,4 @@ public class MongoDao<T extends IdentificableEntity> {
         DBCollection coll = this.mongoDb.getCollection(collection);
         coll.ensureIndex(index);
     }
-
-
 }
