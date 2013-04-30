@@ -11,15 +11,15 @@ class IdWithUnderscoreStrategy
     extends PropertyNamingStrategyBase {
 
     @Override
-    public String translate(final String input) {
-        if (input == null) {
-            return input; // garbage in, garbage out
+    public String translate(final String propertyName) {
+        if (propertyName == null) {
+            return propertyName; // garbage in, garbage out
         }
 
-        if (input.equals("id")) {
+        if (propertyName.equals("id")) {
             return "_id";
         } else {
-            return input;
+            return propertyName;
         }
     }
 

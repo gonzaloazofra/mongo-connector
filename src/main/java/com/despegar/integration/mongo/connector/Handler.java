@@ -81,5 +81,5 @@ public interface Handler<T extends IdentificableEntity> {
      * @param key
      * @return
      */
-    List distinct(String key);
+    List<?> distinct(String key);
 }
