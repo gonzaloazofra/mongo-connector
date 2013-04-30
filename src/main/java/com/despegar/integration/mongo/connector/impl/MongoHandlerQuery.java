@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.OrderedMapIterator;
-import org.bson.BSONObject;
 
 import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.HandlerQuery.ComparisonOperation;
@@ -43,9 +42,9 @@ public class MongoHandlerQuery {
             queries.addAll(this.handlerQuery.getOrs());
 
 
-            final BasicDBObject orComponents = new BasicDBObject();
+            final BasicDBList orComponents = new BasicDBList();
             for (final HandlerQuery handlerQuery : queries) {
-                orComponents.putAll((BSONObject) this.createQueryFromHandler(handlerQuery));
+                orComponents.add(this.createQueryFromHandler(handlerQuery));
             }
 
             res = new BasicDBObject("$or", orComponents); // orRoot
