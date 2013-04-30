@@ -7,6 +7,7 @@ import java.util.Set;
 import net.vz.mongodb.jackson.DBCursor;
 import net.vz.mongodb.jackson.JacksonDBCollection;
 import net.vz.mongodb.jackson.WriteResult;
+import net.vz.mongodb.jackson.internal.MongoJacksonMapperModule;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableInt;
@@ -29,14 +30,7 @@ public class MongoDao<T extends IdentificableEntity> {
     private JacksonDBCollection<T, Object> coll;
 
     public MongoDao(DB mongoDb, String collection, Class<T> clazz) {
-        this.mongoDb = mongoDb;
-        this.clazz = clazz;
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
-        mapper.setSerializationInclusion(Include.NON_NULL);
-
-        this.coll = JacksonDBCollection.wrap(this.mongoDb.getCollection(collection), this.clazz, Object.class, mapper);
+        this(mongoDb, collection, new ObjectMapper(), clazz);
     }
 
     public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz) {
@@ -45,6 +39,7 @@ public class MongoDao<T extends IdentificableEntity> {
 
         mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
         mapper.setSerializationInclusion(Include.NON_NULL);
+        MongoJacksonMapperModule.configure(mapper);
 
         this.coll = JacksonDBCollection.wrap(this.mongoDb.getCollection(collection), this.clazz, Object.class, mapper);
     }
