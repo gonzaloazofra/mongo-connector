@@ -23,7 +23,7 @@ public class MongoHandlerContainer<T extends IdentificableEntity>
 
     @Override
     public Handler<T> getHandler(final String itemType) {
-        MongoHandler<T> handler = this.handlers.get(itemType.toLowerCase());
+        Handler<T> handler = this.handlers.get(itemType.toLowerCase());
         Assert.notNull(handler, "Item type " + itemType + " not supported!");
 
         return handler;

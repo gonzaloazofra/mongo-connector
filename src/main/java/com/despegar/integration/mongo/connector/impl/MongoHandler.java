@@ -75,12 +75,34 @@ public class MongoHandler<T extends IdentificableEntity>
         return this.mongoDao.insert(t);
     }
 
+    @Override
+    public String insertIfNotPresent(final T t) {
+        return this.mongoDao.insert(t);
+    }
+
     public String save(final T t) {
         return this.mongoDao.updateOrInsert(t).toString();
     }
 
+    @Override
+    public String update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert) {
+        final MongoHandlerQuery mongoQuery = new MongoHandlerQuery(query);
+        final MongoHandlerQuery mongoUpdateQuery = new MongoHandlerQuery(updateQuery);
+        Object[] res = (Object[]) this.mongoDao.update(mongoQuery.getQuery(), mongoUpdateQuery.getQuery(), upsert);
+        if (res.length == 1) {
+            return res[0].toString();
+        }
+        return null;
+    }
+
     public void remove(final String id) {
         this.mongoDao.delete(this.collectionName, id);
+    }
+
+    @Override
+    public void remove(HandlerQuery query) {
+        final MongoHandlerQuery mongoQuery = new MongoHandlerQuery(query);
+        this.mongoDao.delete(this.collectionName, mongoQuery.getQuery());
     }
 
     public void removeAll() {

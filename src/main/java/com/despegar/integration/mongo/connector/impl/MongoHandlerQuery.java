@@ -55,7 +55,7 @@ public class MongoHandlerQuery {
 
 
     private BasicDBObject createQueryFromHandler(final HandlerQuery query) {
-        final BasicDBObject dbQuery = new BasicDBObject();
+        BasicDBObject dbQuery = new BasicDBObject();
 
         for (String key : query.getFilters().keySet()) {
 
@@ -69,11 +69,50 @@ public class MongoHandlerQuery {
             dbQuery.append(key, value);
         }
 
+        dbQuery = this.prependUpsateOperation(query, dbQuery);
+
         this.appendRangeOperations(query, dbQuery);
 
         this.appendComparisionOperations(query, dbQuery);
 
+        return dbQuery;
+    }
 
+    private BasicDBObject prependUpsateOperation(HandlerQuery query, BasicDBObject dbQuery) {
+        if (query.getUpdateOperation() != null) {
+            String updateOperation = null;
+            switch (query.getUpdateOperation()) {
+            case INC:
+                updateOperation = "$inc";
+                break;
+            case SET:
+                updateOperation = "$set";
+                break;
+            case UNSET:
+                updateOperation = "$unset";
+                break;
+            case ADD_TO_SET:
+                updateOperation = "$addToSet";
+                break;
+            case POP:
+                updateOperation = "$pop";
+                break;
+            case PULL_ALL:
+                updateOperation = "$pullAll";
+                break;
+            case PULL:
+                updateOperation = "$pull";
+                break;
+            case PUSH:
+                updateOperation = "$push";
+                break;
+            default:
+                break;
+            }
+            if (updateOperation != null) {
+                return new BasicDBObject(updateOperation, dbQuery);
+            }
+        }
         return dbQuery;
     }
 

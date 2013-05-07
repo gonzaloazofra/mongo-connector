@@ -24,10 +24,15 @@ public class HandlerQuery {
         GREATER, GREATER_OR_EQUAL, LESS, LESS_OR_EQUAL, NOT_EQUAL
     }
 
+    public static enum UpdateOperation {
+        SET, UNSET, INC, RENAME, ADD_TO_SET, POP, PULL_ALL, PULL, PUSH
+    }
+
     private Map<String, OperationWithComparison> comparisonOperators = new HashMap<String, OperationWithComparison>();
     private Map<String, OperationWithRange> rangeOperators = new HashMap<String, OperationWithRange>();
     private Map<String, Object> filters = new HashMap<String, Object>();
     private OrderedMap orderFields = new ListOrderedMap();
+    private UpdateOperation updateOperation = null;
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
 
@@ -191,6 +196,14 @@ public class HandlerQuery {
             return this.values;
         }
 
+    }
+
+    public UpdateOperation getUpdateOperation() {
+        return this.updateOperation;
+    }
+
+    public void setUpdateOperation(UpdateOperation updateOperation) {
+        this.updateOperation = updateOperation;
     }
 
 }

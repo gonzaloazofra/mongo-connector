@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import com.despegar.integration.domain.api.IdentificableEntity;
+import com.despegar.integration.mongo.connector.HandlerQuery.UpdateOperation;
 
 
 /**
@@ -82,4 +83,22 @@ public interface Handler<T extends IdentificableEntity> {
      * @return
      */
     List<?> distinct(String key);
+
+    /**
+     * Updates a collection based on the updateQuery
+     * 
+     * @param query - Query to filter the documents to update
+     * @param updateQuery - Query to modify the document, can be a document or use one of the {@link UpdateOperation}.
+     * @param upsert - Whether to create a new instance if no instance matches the filter query.
+     * @return
+     */
+    String update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert);
+
+    /**
+     * Remove a set of elements of the collection that match the query    
+     * @param query
+     */
+    public abstract void remove(HandlerQuery query);
+
+    public abstract String insertIfNotPresent(final T t);
 }

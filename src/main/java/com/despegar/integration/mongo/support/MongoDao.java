@@ -133,6 +133,10 @@ public class MongoDao<T extends IdentificableEntity> {
         return update.getSavedIds();
     }
 
+    public Object update(BasicDBObject query, BasicDBObject value, boolean upsert) {
+        return this.update(query, value, upsert, WriteConcern.SAFE);
+    }
+
     public Object update(DBObject query, DBObject value, boolean upsert, WriteConcern concern) {
         return this.update(query, value, upsert, false, concern);
     }
@@ -201,4 +205,6 @@ public class MongoDao<T extends IdentificableEntity> {
         DBCollection coll = this.mongoDb.getCollection(collection);
         coll.ensureIndex(index);
     }
+
+
 }
