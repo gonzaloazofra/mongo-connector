@@ -145,6 +145,24 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.update(query, value, false, false, concern);
     }
 
+    public Object update(T query, T value, boolean upsert, boolean multi, WriteConcern concern) {
+        WriteResult<T, Object> update = this.coll.update(query, value, upsert, multi, concern);
+
+        return update.getSavedIds();
+    }
+
+    public Object update(T query, T value, boolean upsert) {
+        return this.update(query, value, upsert, WriteConcern.SAFE);
+    }
+
+    public Object update(T query, T value, boolean upsert, WriteConcern concern) {
+        return this.update(query, value, upsert, false, concern);
+    }
+
+    public Object update(T query, T value, WriteConcern concern) {
+        return this.update(query, value, false, false, concern);
+    }
+
     public String updateById(String id, T value) {
         this.coll.updateById(id, value);
 
