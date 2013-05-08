@@ -19,7 +19,7 @@ public class MongoHandler<T extends IdentificableEntity>
     private Class<T> clazz;
     public String collectionName;
 
-    private MongoDao<T> mongoDao;
+    protected MongoDao<T> mongoDao;
 
     @Override
     public void afterPropertiesSet() throws Exception {
