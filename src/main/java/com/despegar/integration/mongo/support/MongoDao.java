@@ -53,7 +53,7 @@ public class MongoDao<T extends IdentificableEntity> {
     }
 
     public T findOne(String id) {
-        return this.coll.findOne(new BasicDBObject("_id", id), new BasicDBObject());
+        return this.coll.findOneById(id, new BasicDBObject());
     }
 
     public List<T> find() {
