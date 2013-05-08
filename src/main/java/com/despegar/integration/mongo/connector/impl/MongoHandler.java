@@ -16,7 +16,7 @@ public class MongoHandler<T extends IdentificableEntity>
     implements Handler<T>, InitializingBean {
 
     private MongoDaoFactory mongoDaoFactory;
-    private Class<T> clazz;
+    protected Class<T> clazz;
     public String collectionName;
 
     protected MongoDao<T> mongoDao;
