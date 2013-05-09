@@ -52,6 +52,14 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.coll.findOne(query, new BasicDBObject());
     }
 
+    public T findOne(DBObject query, DBObject sortInfo, Page page) {
+        List<T> list = this.find(query, new BasicDBObject(), sortInfo, page);
+        if (list != null && !list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
+    }
+
     public T findOne(String id) {
         return this.coll.findOneById(id, new BasicDBObject());
     }

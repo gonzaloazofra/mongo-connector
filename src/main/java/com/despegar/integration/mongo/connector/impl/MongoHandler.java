@@ -40,8 +40,9 @@ public class MongoHandler<T extends IdentificableEntity>
     public T getOne(final HandlerQuery query) {
         final MongoHandlerQuery mhq = new MongoHandlerQuery(query);
 
-        return this.mongoDao.findOne(mhq.getQuery());
+        return this.mongoDao.findOne(mhq.getQuery(), mhq.getSortInfo(), mhq.getPage());
     }
+
 
     public List<T> getAll() {
         return this.getAll(null);
