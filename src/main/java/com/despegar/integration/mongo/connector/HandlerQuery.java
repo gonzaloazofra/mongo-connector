@@ -20,8 +20,12 @@ public class HandlerQuery {
         IN, NOT_IN, ALL
     }
 
+    public static enum MathOperation {
+        MODULO
+    }
+
     public static enum ComparisonOperation {
-        GREATER, GREATER_OR_EQUAL, LESS, LESS_OR_EQUAL, NOT_EQUAL
+        GREATER, GREATER_OR_EQUAL, LESS, LESS_OR_EQUAL, NOT_EQUAL, EXISTS
     }
 
     public static enum UpdateOperation {
@@ -30,6 +34,7 @@ public class HandlerQuery {
 
     private Map<String, OperationWithComparison> comparisonOperators = new HashMap<String, OperationWithComparison>();
     private Map<String, OperationWithRange> rangeOperators = new HashMap<String, OperationWithRange>();
+    private Map<String, OperationWithMathFunction> mathOperators = new HashMap<String, OperationWithMathFunction>();
     private Map<String, Object> filters = new HashMap<String, Object>();
     private OrderedMap orderFields = new ListOrderedMap();
     private UpdateOperation updateOperation = null;
@@ -91,6 +96,17 @@ public class HandlerQuery {
     }
 
     /**
+     * Search the key value matching the math operation with the value
+     * @param key
+     * @param values
+     * @return
+     */
+    public HandlerQuery put(String key, MathOperation operator, Object value) {
+        this.getMathOperators().put(key, new OperationWithMathFunction(operator, value));
+        return this;
+    }
+
+    /**
      * Add a field for sorting purpose, with a default direction (asc)
      */
     public HandlerQuery addOrderCriteria(String fieldName) {
@@ -119,6 +135,21 @@ public class HandlerQuery {
             this.rangeOperators = new HashMap<String, OperationWithRange>();
         }
         return this.rangeOperators;
+    }
+
+    public UpdateOperation getUpdateOperation() {
+        return this.updateOperation;
+    }
+
+    public Map<String, OperationWithMathFunction> getMathOperators() {
+        if (this.mathOperators == null) {
+            this.mathOperators = new HashMap<String, OperationWithMathFunction>();
+        }
+        return this.mathOperators;
+    }
+
+    public void setUpdateOperation(UpdateOperation updateOperation) {
+        this.updateOperation = updateOperation;
     }
 
     public void setPage(Page page) {
@@ -198,12 +229,25 @@ public class HandlerQuery {
 
     }
 
-    public UpdateOperation getUpdateOperation() {
-        return this.updateOperation;
-    }
+    public static class OperationWithMathFunction {
+        private MathOperation mathOperation;
+        private Object values;
 
-    public void setUpdateOperation(UpdateOperation updateOperation) {
-        this.updateOperation = updateOperation;
-    }
+        public OperationWithMathFunction(MathOperation mathOperation, Object values) {
+            super();
+            this.mathOperation = mathOperation;
+            this.values = values;
+        }
 
+        public MathOperation getMathOperation() {
+            return this.mathOperation;
+        }
+
+        public Object getValues() {
+            return this.values;
+        }
+
+
+
+    }
 }

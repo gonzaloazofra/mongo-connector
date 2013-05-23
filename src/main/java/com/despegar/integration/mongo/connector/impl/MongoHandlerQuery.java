@@ -10,7 +10,9 @@ import org.apache.commons.collections.OrderedMapIterator;
 
 import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.HandlerQuery.ComparisonOperation;
+import com.despegar.integration.mongo.connector.HandlerQuery.MathOperation;
 import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithComparison;
+import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithMathFunction;
 import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithRange;
 import com.despegar.integration.mongo.connector.HandlerQuery.OrderDirection;
 import com.despegar.integration.mongo.connector.HandlerQuery.RangeOperation;
@@ -72,8 +74,8 @@ public class MongoHandlerQuery {
         dbQuery = this.prependUpsateOperation(query, dbQuery);
 
         this.appendRangeOperations(query, dbQuery);
-
         this.appendComparisionOperations(query, dbQuery);
+        this.appendMathOperations(query, dbQuery);
 
         return dbQuery;
     }
@@ -116,6 +118,60 @@ public class MongoHandlerQuery {
         return dbQuery;
     }
 
+    private String getComparisonOperation(final ComparisonOperation operation) {
+        String comparisonOperation = null;
+        switch (operation) {
+        case LESS:
+            comparisonOperation = "$lt";
+            break;
+        case LESS_OR_EQUAL:
+            comparisonOperation = "$lte";
+            break;
+        case GREATER:
+            comparisonOperation = "$gt";
+            break;
+        case GREATER_OR_EQUAL:
+            comparisonOperation = "$gte";
+            break;
+        case NOT_EQUAL:
+            comparisonOperation = "$ne";
+            break;
+        case EXISTS:
+            comparisonOperation = "$exists";
+            break;
+        }
+
+        return comparisonOperation;
+    }
+
+    private String getRangeOperation(final RangeOperation operation) {
+        String rangeOperation = null;
+        switch (operation) {
+        case IN:
+            rangeOperation = "$in";
+            break;
+        case NOT_IN:
+            rangeOperation = "$nin";
+            break;
+        case ALL:
+            rangeOperation = "$all";
+            break;
+        }
+
+        return rangeOperation;
+    }
+
+    private String getMathOperation(final MathOperation operation) {
+        String mathOperation = null;
+        switch (operation) {
+        case MODULO:
+            mathOperation = "$mod";
+            break;
+        }
+
+        return mathOperation;
+    }
+
     private BasicDBObject appendComparisionOperations(final HandlerQuery query, final BasicDBObject dbQuery) {
         final Set<Entry<String, OperationWithComparison>> comparison = query.getComparisonOperators().entrySet();
 
@@ -154,42 +210,16 @@ public class MongoHandlerQuery {
         }
     }
 
-    private String getComparisonOperation(final ComparisonOperation operation) {
+    private void appendMathOperations(final HandlerQuery query, final BasicDBObject dbQuery) {
+        final Set<Entry<String, OperationWithMathFunction>> mathOperations = query.getMathOperators().entrySet();
+        for (final Entry<String, OperationWithMathFunction> entry : mathOperations) {
+            final String key = entry.getKey();
+            final MathOperation operation = entry.getValue().getMathOperation();
+            final Object values = entry.getValue().getValues();
 
-        if (HandlerQuery.ComparisonOperation.LESS.equals(operation)) {
-            return "$lt";
+            final DBObject inClouse = new BasicDBObject(this.getMathOperation(operation), values);
+            dbQuery.append(key, inClouse);
         }
-        if (HandlerQuery.ComparisonOperation.LESS_OR_EQUAL.equals(operation)) {
-            return "$lte";
-        }
-        if (HandlerQuery.ComparisonOperation.GREATER.equals(operation)) {
-            return "$gt";
-        }
-        if (HandlerQuery.ComparisonOperation.GREATER_OR_EQUAL.equals(operation)) {
-            return "$gte";
-        }
-        if (HandlerQuery.ComparisonOperation.NOT_EQUAL.equals(operation)) {
-            return "$ne";
-        }
-        return null;
-    }
-
-    private String getRangeOperation(final RangeOperation operation) {
-        // no pongo estos valores en los enums para que no queden atados a MONGO, y que el enum sirva para cualquier
-        // implementación
-
-        if (HandlerQuery.RangeOperation.IN.equals(operation)) {
-            return "$in";
-        }
-
-        if (HandlerQuery.RangeOperation.NOT_IN.equals(operation)) {
-            return "$nin";
-        }
-
-        if (HandlerQuery.RangeOperation.ALL.equals(operation)) {
-            return "$all";
-        }
-        return null;
     }
 
     public DBObject getSortInfo() {
