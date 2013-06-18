@@ -55,8 +55,13 @@ public class MongoHandlerQuery {
         return res;
     }
 
-
     private BasicDBObject createQueryFromHandler(final HandlerQuery query) {
+        BasicDBObject dbQuery = this.createQuery(query);
+        this.appendOrQueries(query, dbQuery);
+        return dbQuery;
+    }
+
+    private BasicDBObject createQuery(final HandlerQuery query) {
         BasicDBObject dbQuery = new BasicDBObject();
 
         for (String key : query.getFilters().keySet()) {
@@ -219,6 +224,16 @@ public class MongoHandlerQuery {
 
             final DBObject inClouse = new BasicDBObject(this.getMathOperation(operation), values);
             dbQuery.append(key, inClouse);
+        }
+    }
+
+    private void appendOrQueries(final HandlerQuery query, final BasicDBObject dbQuery) {
+        if (!this.handlerQuery.getAndOrs().isEmpty()) {
+            final BasicDBList orComponents = new BasicDBList();
+            for (final HandlerQuery handlerQuery : this.handlerQuery.getAndOrs()) {
+                orComponents.add(this.createQuery(handlerQuery));
+            }
+            dbQuery.append("$or", orComponents);
         }
     }
 
