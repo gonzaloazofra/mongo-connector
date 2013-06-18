@@ -38,6 +38,7 @@ public class HandlerQuery {
     private Map<String, Object> filters = new HashMap<String, Object>();
     private OrderedMap orderFields = new ListOrderedMap();
     private UpdateOperation updateOperation = null;
+    private Boolean crucialDataIntegration = Boolean.FALSE;
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
 
@@ -178,6 +179,13 @@ public class HandlerQuery {
         return this.ors;
     }
 
+    public Boolean isCrucialDataIntegration() {
+        return this.crucialDataIntegration;
+    }
+
+    public void setCrucialDataIntegration(Boolean crucialDataOperation) {
+        this.crucialDataIntegration = crucialDataOperation;
+    }
 
     public static class OperationWithComparison {
         private ComparisonOperation operation;

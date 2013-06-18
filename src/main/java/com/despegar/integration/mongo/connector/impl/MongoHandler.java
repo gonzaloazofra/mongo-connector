@@ -11,6 +11,7 @@ import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.Page;
 import com.despegar.integration.mongo.support.MongoDao;
 import com.despegar.integration.mongo.support.MongoDaoFactory;
+import com.mongodb.ReadPreference;
 
 public class MongoHandler<T extends IdentificableEntity>
     implements Handler<T>, InitializingBean {
@@ -59,7 +60,9 @@ public class MongoHandler<T extends IdentificableEntity>
         }
 
         final MongoHandlerQuery mongoQuery = new MongoHandlerQuery(query);
-        return this.mongoDao.find(mongoQuery.getQuery(), null, mongoQuery.getSortInfo(), mongoQuery.getPage(), count);
+
+        return this.mongoDao.find(mongoQuery.getQuery(), null, mongoQuery.getSortInfo(), mongoQuery.getPage(), count,
+            this.isCrucialDataIntegration(query));
     }
 
     public Integer count(final HandlerQuery query) {
@@ -124,5 +127,13 @@ public class MongoHandler<T extends IdentificableEntity>
 
     public List<?> distinct(String key) {
         return this.mongoDao.distinct(key);
+    }
+
+    private ReadPreference isCrucialDataIntegration(HandlerQuery query) {
+        if (query.isCrucialDataIntegration()) {
+            return ReadPreference.PRIMARY;
+        }
+
+        return null;
     }
 }
