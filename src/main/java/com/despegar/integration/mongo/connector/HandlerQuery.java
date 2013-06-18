@@ -40,6 +40,7 @@ public class HandlerQuery {
     private UpdateOperation updateOperation = null;
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
+    private List<HandlerQuery> andOrs = new ArrayList<HandlerQuery>();
 
     private Page page;
 
@@ -178,6 +179,15 @@ public class HandlerQuery {
         return this.ors;
     }
 
+    public HandlerQuery andOr(Collection<HandlerQuery> orQueries) {
+        this.andOrs.addAll(orQueries);
+        return this;
+    }
+
+
+    public List<HandlerQuery> getAndOrs() {
+        return this.andOrs;
+    }
 
     public static class OperationWithComparison {
         private ComparisonOperation operation;
