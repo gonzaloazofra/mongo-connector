@@ -42,7 +42,6 @@ public class HandlerQuery {
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
     private List<HandlerQuery> andOrs = new ArrayList<HandlerQuery>();
-    private List<HandlerQuery> nots = new ArrayList<HandlerQuery>();
 
     private Page page;
 
@@ -65,6 +64,10 @@ public class HandlerQuery {
      * @return
      */
     public HandlerQuery put(String key, RangeOperation operator, Collection<?> values) {
+        return this.put(key, operator, values, false);
+    }
+
+    public HandlerQuery put(String key, RangeOperation operator, Collection<?> values, boolean negation) {
         if (values == null || values.size() == 0) {
             return this;
         } else if (values.size() == 1) {
@@ -76,7 +79,7 @@ public class HandlerQuery {
 
             return this;
         }
-        this.getRangeOperators().put(key, new OperationWithRange(operator, values));
+        this.getRangeOperators().put(key, new OperationWithRange(operator, values, negation));
         return this;
     }
 
@@ -87,12 +90,16 @@ public class HandlerQuery {
      * @return
      */
     public HandlerQuery put(String key, ComparisonOperation operator, Object value) {
+        return this.put(key, operator, value, false);
+    }
+
+    public HandlerQuery put(String key, ComparisonOperation operator, Object value, boolean negation) {
         OperationWithComparison operationWithComparison = this.getComparisonOperators().get(key);
 
         if (operationWithComparison != null) {
-            operationWithComparison.addComparision(new OperationWithComparison(operator, value));
+            operationWithComparison.addComparision(new OperationWithComparison(operator, value, negation));
         } else {
-            this.getComparisonOperators().put(key, new OperationWithComparison(operator, value));
+            this.getComparisonOperators().put(key, new OperationWithComparison(operator, value, negation));
         }
         return this;
     }
@@ -104,7 +111,11 @@ public class HandlerQuery {
      * @return
      */
     public HandlerQuery put(String key, MathOperation operator, Object value) {
-        this.getMathOperators().put(key, new OperationWithMathFunction(operator, value));
+        return this.put(key, operator, value, false);
+    }
+
+    public HandlerQuery put(String key, MathOperation operator, Object value, boolean negation) {
+        this.getMathOperators().put(key, new OperationWithMathFunction(operator, value, negation));
         return this;
     }
 
@@ -194,25 +205,18 @@ public class HandlerQuery {
         return this.andOrs;
     }
 
-    public HandlerQuery not(HandlerQuery anotherQuery) {
-        this.nots.add(anotherQuery);
-        return this;
-    }
-
-    public List<HandlerQuery> getNots() {
-        return this.nots;
-    }
-
     public static class OperationWithComparison {
         private ComparisonOperation operation;
         private Object value;
+        private boolean negation;
 
         private List<OperationWithComparison> moreComparisions = new ArrayList<HandlerQuery.OperationWithComparison>();
 
-        public OperationWithComparison(ComparisonOperation operation, Object value) {
+        public OperationWithComparison(ComparisonOperation operation, Object value, boolean negation) {
             super();
             this.operation = operation;
             this.value = value;
+            this.negation = negation;
         }
 
         public ComparisonOperation getOperation() {
@@ -231,16 +235,22 @@ public class HandlerQuery {
         public List<OperationWithComparison> getMoreComparisions() {
             return this.moreComparisions;
         }
+
+        public boolean isNegation() {
+            return this.negation;
+        }
     }
 
     public static class OperationWithRange {
         private RangeOperation rangeOperation;
         private Collection<?> values;
+        private boolean negation;
 
-        public OperationWithRange(RangeOperation rangeOperation, Collection<?> values) {
+        public OperationWithRange(RangeOperation rangeOperation, Collection<?> values, boolean negation) {
             super();
             this.rangeOperation = rangeOperation;
             this.values = values;
+            this.negation = negation;
         }
 
         public RangeOperation getCollectionOperation() {
@@ -251,16 +261,22 @@ public class HandlerQuery {
             return this.values;
         }
 
+        public boolean isNegation() {
+            return this.negation;
+        }
+
     }
 
     public static class OperationWithMathFunction {
         private MathOperation mathOperation;
         private Object values;
+        private boolean negation;
 
-        public OperationWithMathFunction(MathOperation mathOperation, Object values) {
+        public OperationWithMathFunction(MathOperation mathOperation, Object values, boolean negation) {
             super();
             this.mathOperation = mathOperation;
             this.values = values;
+            this.negation = negation;
         }
 
         public MathOperation getMathOperation() {
@@ -269,6 +285,10 @@ public class HandlerQuery {
 
         public Object getValues() {
             return this.values;
+        }
+
+        public boolean isNegation() {
+            return this.negation;
         }
     }
 

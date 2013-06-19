@@ -58,7 +58,6 @@ public class MongoHandlerQuery {
     private BasicDBObject createQueryFromHandler(final HandlerQuery query) {
         BasicDBObject dbQuery = this.createQuery(query);
         this.appendOrQueries(query, dbQuery);
-        this.appendNotQueries(query, dbQuery);
         return dbQuery;
     }
 
@@ -190,12 +189,15 @@ public class MongoHandlerQuery {
 
             comparisions.addAll(operationWithComparision.getMoreComparisions());
 
-            final BasicDBObject comparisionComponents = new BasicDBObject();
+            BasicDBObject comparisionComponents = new BasicDBObject();
             for (final OperationWithComparison eachOperation : comparisions) {
                 comparisionComponents.append(this.getComparisonOperation(eachOperation.getOperation()),
                     eachOperation.getValue());
             }
 
+            if (entry.getValue().isNegation()) {
+                comparisionComponents = new BasicDBObject("$not", comparisionComponents);
+            }
             dbQuery.append(key, comparisionComponents);
         }
 
@@ -211,8 +213,12 @@ public class MongoHandlerQuery {
 
             final BasicDBList list = new BasicDBList();
             list.addAll(values);
-            final DBObject inClouse = new BasicDBObject(this.getRangeOperation(operation), list);
-            dbQuery.append(key, inClouse);
+            DBObject rangeClause = new BasicDBObject(this.getRangeOperation(operation), list);
+
+            if (entry.getValue().isNegation()) {
+                rangeClause = new BasicDBObject("$not", rangeClause);
+            }
+            dbQuery.append(key, rangeClause);
         }
     }
 
@@ -223,8 +229,12 @@ public class MongoHandlerQuery {
             final MathOperation operation = entry.getValue().getMathOperation();
             final Object values = entry.getValue().getValues();
 
-            final DBObject inClouse = new BasicDBObject(this.getMathOperation(operation), values);
-            dbQuery.append(key, inClouse);
+            DBObject mathClause = new BasicDBObject(this.getMathOperation(operation), values);
+
+            if (entry.getValue().isNegation()) {
+                mathClause = new BasicDBObject("$not", mathClause);
+            }
+            dbQuery.append(key, mathClause);
         }
     }
 
@@ -235,12 +245,6 @@ public class MongoHandlerQuery {
                 orComponents.add(this.createQuery(handlerQuery));
             }
             dbQuery.append("$or", orComponents);
-        }
-    }
-
-    private void appendNotQueries(final HandlerQuery query, final BasicDBObject dbQuery) {
-        for (final HandlerQuery handlerQuery : this.handlerQuery.getNots()) {
-            dbQuery.append("$not", this.createQuery(handlerQuery));
         }
     }
 
