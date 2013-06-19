@@ -38,6 +38,7 @@ public class HandlerQuery {
     private Map<String, Object> filters = new HashMap<String, Object>();
     private OrderedMap orderFields = new ListOrderedMap();
     private UpdateOperation updateOperation = null;
+    private Boolean crucialDataIntegration = Boolean.FALSE;
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
     private List<HandlerQuery> andOrs = new ArrayList<HandlerQuery>();
@@ -174,6 +175,14 @@ public class HandlerQuery {
 
     public List<HandlerQuery> getOrs() {
         return this.ors;
+    }
+
+    public Boolean isCrucialDataIntegration() {
+        return this.crucialDataIntegration;
+    }
+
+    public void setCrucialDataIntegration(Boolean crucialDataOperation) {
+        this.crucialDataIntegration = crucialDataOperation;
     }
 
     public HandlerQuery andOr(Collection<HandlerQuery> orQueries) {

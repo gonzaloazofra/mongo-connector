@@ -21,6 +21,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 
 public class MongoDao<T extends IdentificableEntity> {
@@ -48,12 +49,28 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.findOne(new BasicDBObject());
     }
 
+    public T findOne(ReadPreference readPreference) {
+        return this.findOne(new BasicDBObject(), readPreference);
+    }
+
     public T findOne(DBObject query) {
-        return this.coll.findOne(query, new BasicDBObject());
+        return this.findOne(query, new BasicDBObject(), new Page(1, 1));
+    }
+
+    public T findOne(DBObject query, ReadPreference readPreference) {
+        return this.findOne(query, new BasicDBObject(), new Page(1, 1), readPreference);
     }
 
     public T findOne(DBObject query, DBObject sortInfo, Page page) {
         List<T> list = this.find(query, new BasicDBObject(), sortInfo, page);
+        if (list != null && !list.isEmpty()) {
+            return list.get(0);
+        }
+        return null;
+    }
+
+    public T findOne(DBObject query, DBObject sortInfo, Page page, ReadPreference readPreference) {
+        List<T> list = this.find(query, new BasicDBObject(), sortInfo, page, readPreference);
         if (list != null && !list.isEmpty()) {
             return list.get(0);
         }
@@ -68,27 +85,56 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.find(new BasicDBObject());
     }
 
+    public List<T> find(ReadPreference readPreference) {
+        return this.find(new BasicDBObject(), readPreference);
+    }
+
     public List<T> find(DBObject query) {
         return this.find(query, new BasicDBObject());
+    }
+
+    public List<T> find(DBObject query, ReadPreference readPreference) {
+        return this.find(query, new BasicDBObject(), readPreference);
     }
 
     public List<T> find(DBObject query, DBObject fields) {
         return this.findUsingSortInfo(query, fields, null);
     }
 
+    public List<T> find(DBObject query, DBObject fields, ReadPreference readPreference) {
+        return this.findUsingSortInfo(query, fields, null, readPreference);
+    }
+
     public List<T> findUsingSortInfo(DBObject query, DBObject fields, DBObject sortInfo) {
         return this.find(query, fields, sortInfo, null);
+    }
+
+    public List<T> findUsingSortInfo(DBObject query, DBObject fields, DBObject sortInfo, ReadPreference readPreference) {
+        return this.find(query, fields, sortInfo, null, readPreference);
     }
 
     public List<T> findUsingPage(DBObject query, DBObject fields, Page page) {
         return this.find(query, fields, null, page);
     }
 
+    public List<T> findUsingPage(DBObject query, DBObject fields, Page page, ReadPreference readPreference) {
+        return this.find(query, fields, null, page, readPreference);
+    }
+
     public List<T> find(DBObject query, DBObject fields, DBObject sortInfo, Page page) {
-        return this.find(query, fields, sortInfo, page, null);
+        return this.find(query, fields, sortInfo, page, null, this.coll.getReadPreference());
+    }
+
+    public List<T> find(DBObject query, DBObject fields, DBObject sortInfo, Page page, ReadPreference readPreference) {
+        return this.find(query, fields, sortInfo, page, null, readPreference);
     }
 
     public List<T> find(DBObject query, DBObject fields, DBObject sortInfo, Page page, MutableInt count) {
+        return this.find(query, fields, sortInfo, page, count, this.coll.getReadPreference());
+    }
+
+    public List<T> find(DBObject query, DBObject fields, DBObject sortInfo, Page page, MutableInt count,
+        ReadPreference readPreference) {
         DBCursor<T> cursor = this.coll.find(query, fields);
 
         if (count != null) {
@@ -97,6 +143,10 @@ public class MongoDao<T extends IdentificableEntity> {
 
         if (sortInfo != null) {
             cursor = cursor.sort(sortInfo);
+        }
+
+        if (readPreference != null) {
+            cursor.setReadPreference(readPreference);
         }
 
         if (page != null) {
