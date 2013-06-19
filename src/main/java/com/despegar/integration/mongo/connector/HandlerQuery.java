@@ -41,6 +41,7 @@ public class HandlerQuery {
 
     private List<HandlerQuery> ors = new ArrayList<HandlerQuery>();
     private List<HandlerQuery> andOrs = new ArrayList<HandlerQuery>();
+    private List<HandlerQuery> nots = new ArrayList<HandlerQuery>();
 
     private Page page;
 
@@ -77,7 +78,6 @@ public class HandlerQuery {
         this.getRangeOperators().put(key, new OperationWithRange(operator, values));
         return this;
     }
-
 
     /**
      * Search the key value matching the comparison operation with the value
@@ -130,7 +130,6 @@ public class HandlerQuery {
         return this.orderFields;
     }
 
-
     public Map<String, OperationWithRange> getRangeOperators() {
         if (this.rangeOperators == null) {
             this.rangeOperators = new HashMap<String, OperationWithRange>();
@@ -168,12 +167,10 @@ public class HandlerQuery {
         return this.comparisonOperators;
     }
 
-
     public HandlerQuery or(HandlerQuery anotherQuery) {
         this.ors.add(anotherQuery);
         return this;
     }
-
 
     public List<HandlerQuery> getOrs() {
         return this.ors;
@@ -184,9 +181,17 @@ public class HandlerQuery {
         return this;
     }
 
-
     public List<HandlerQuery> getAndOrs() {
         return this.andOrs;
+    }
+
+    public HandlerQuery not(HandlerQuery anotherQuery) {
+        this.nots.add(anotherQuery);
+        return this;
+    }
+
+    public List<HandlerQuery> getNots() {
+        return this.nots;
     }
 
     public static class OperationWithComparison {
@@ -256,8 +261,6 @@ public class HandlerQuery {
         public Object getValues() {
             return this.values;
         }
-
-
-
     }
+
 }

@@ -58,6 +58,7 @@ public class MongoHandlerQuery {
     private BasicDBObject createQueryFromHandler(final HandlerQuery query) {
         BasicDBObject dbQuery = this.createQuery(query);
         this.appendOrQueries(query, dbQuery);
+        this.appendNotQueries(query, dbQuery);
         return dbQuery;
     }
 
@@ -234,6 +235,12 @@ public class MongoHandlerQuery {
                 orComponents.add(this.createQuery(handlerQuery));
             }
             dbQuery.append("$or", orComponents);
+        }
+    }
+
+    private void appendNotQueries(final HandlerQuery query, final BasicDBObject dbQuery) {
+        for (final HandlerQuery handlerQuery : this.handlerQuery.getNots()) {
+            dbQuery.append("$not", this.createQuery(handlerQuery));
         }
     }
 
