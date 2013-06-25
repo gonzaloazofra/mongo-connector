@@ -70,7 +70,7 @@ public class HandlerQuery {
     public HandlerQuery put(String key, RangeOperation operator, Collection<?> values, boolean negation) {
         if (values == null || values.size() == 0) {
             return this;
-        } else if (values.size() == 1) {
+        } else if (values.size() == 1 && !negation) {
             if (operator == RangeOperation.NOT_IN) {
                 this.put(key, ComparisonOperation.NOT_EQUAL, values.iterator().next());
             } else {
