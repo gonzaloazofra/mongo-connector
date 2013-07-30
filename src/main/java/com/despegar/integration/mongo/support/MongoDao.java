@@ -150,8 +150,8 @@ public class MongoDao<T extends IdentificableEntity> {
         }
 
         if (page != null) {
-            cursor = cursor.skip((page.number() - 1) * page.size());
-            cursor = cursor.limit(page.size());
+            cursor = cursor.skip(page.getOffset());
+            cursor = cursor.limit(page.getLimit());
         }
 
         List<T> ret = new ArrayList<T>();
