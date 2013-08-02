@@ -68,7 +68,7 @@ public class HandlerQuery {
     }
 
     public HandlerQuery put(String key, RangeOperation operator, Collection<?> values, boolean negation) {
-        if (values == null || values.size() == 0) {
+        if (values == null) {
             return this;
         } else if (values.size() == 1 && !negation) {
             if (operator == RangeOperation.NOT_IN) {
