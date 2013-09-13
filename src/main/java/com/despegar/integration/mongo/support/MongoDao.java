@@ -54,11 +54,11 @@ public class MongoDao<T extends IdentificableEntity> {
     }
 
     public T findOne(DBObject query) {
-        return this.findOne(query, new BasicDBObject(), new Page(1, 1));
+        return this.findOne(query, new BasicDBObject(), new Page(0, 1));
     }
 
     public T findOne(DBObject query, ReadPreference readPreference) {
-        return this.findOne(query, new BasicDBObject(), new Page(1, 1), readPreference);
+        return this.findOne(query, new BasicDBObject(), new Page(0, 1), readPreference);
     }
 
     public T findOne(DBObject query, DBObject sortInfo, Page page) {
