@@ -37,7 +37,7 @@
 
 	<properties>
 		<mongo-jackson-mapper.version>2.0</mongo-jackson-mapper.version>
-		<spring-mongodb.version>1.0.4.RELEASE</spring-mongodb.version>
+		<spring-mongodb.version>1.3.2.RELEASE</spring-mongodb.version>
 		<commons-lang.version>2.6</commons-lang.version>
 	</properties>
 
