@@ -9,12 +9,12 @@ import net.vz.mongodb.jackson.JacksonDBCollection;
 import net.vz.mongodb.jackson.WriteResult;
 import net.vz.mongodb.jackson.internal.MongoJacksonMapperModule;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.mutable.MutableInt;
-import org.bson.types.ObjectId;
 
-import com.despegar.integration.domain.api.IdentificableEntity;
+import com.despegar.integration.domain.api.GenericIdentificableEntity;
 import com.despegar.integration.mongo.connector.Page;
+import com.despegar.integration.mongo.id.IdGenerator;
+import com.despegar.integration.mongo.id.StringIdGenerator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
@@ -24,19 +24,23 @@ import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 
-public class MongoDao<T extends IdentificableEntity> {
+public class MongoDao<T extends GenericIdentificableEntity> {
 
     private DB mongoDb;
     private Class<T> clazz;
     private JacksonDBCollection<T, Object> coll;
+    private IdGenerator idGenerator;
 
+    @SuppressWarnings("unchecked")
+    @Deprecated
     public MongoDao(DB mongoDb, String collection, Class<T> clazz) {
-        this(mongoDb, collection, new ObjectMapper(), clazz);
+        this(mongoDb, collection, new ObjectMapper(), clazz, new StringIdGenerator());
     }
 
-    public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz) {
+    public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz, IdGenerator idGenerator) {
         this.mongoDb = mongoDb;
         this.clazz = clazz;
+        this.idGenerator = idGenerator;
 
         mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
         mapper.setSerializationInclusion(Include.NON_NULL);
@@ -77,7 +81,7 @@ public class MongoDao<T extends IdentificableEntity> {
         return null;
     }
 
-    public T findOne(String id) {
+    public <X extends Object> T findOne(X id) {
         return this.coll.findOneById(id, new BasicDBObject());
     }
 
@@ -171,18 +175,18 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.coll.distinct(key);
     }
 
-    public String insert(T value) {
+    public <X extends Object> X insert(T value) {
         return this.insert(value, WriteConcern.NORMAL);
     }
 
-    public String insert(T value, WriteConcern concern) {
-        if (StringUtils.isEmpty(value.getId())) {
-            value.setId(new ObjectId().toString());
+    public <X extends Object> X insert(T value, WriteConcern concern) {
+        if (this.idGenerator.validateId(value.getId())) {
+            value.setId(this.idGenerator.generateId(this.coll.getName()));
         }
 
         WriteResult<T, Object> insert = this.coll.insert(value, concern);
 
-        return insert.getSavedObject().getId();
+        return (X) insert.getSavedObject().getId();
     }
 
     public Object update(DBObject query, DBObject value, boolean upsert, boolean multi, WriteConcern concern) {
@@ -221,22 +225,22 @@ public class MongoDao<T extends IdentificableEntity> {
         return this.update(query, value, false, false, concern);
     }
 
-    public String updateById(String id, T value) {
+    public <X extends Object> X updateById(X id, T value) {
         this.coll.updateById(id, value);
 
         return id;
     }
 
-    public String updateOrInsert(T value) {
+    public <X extends Object> X updateOrInsert(T value) {
         return this.updateOrInsert(value, WriteConcern.SAFE);
     }
 
-    public String updateOrInsert(T value, WriteConcern concern) {
-        String ret = null;
-        if (StringUtils.isEmpty(value.getId()) || this.findOne(value.getId()) == null) {
+    public <X extends Object> X updateOrInsert(T value, WriteConcern concern) {
+        X ret = null;
+        if (this.idGenerator.validateId(value.getId()) || this.findOne(value.getId()) == null) {
             ret = this.insert(value, concern);
         } else {
-            ret = this.updateById(value.getId(), value);
+            ret = (X) this.updateById(value.getId(), value);
         }
 
         return ret;
@@ -273,7 +277,7 @@ public class MongoDao<T extends IdentificableEntity> {
         coll.remove(query);
     }
 
-    public void delete(String collection, String id) {
+    public <X extends Object> void delete(String collection, X id) {
         this.delete(collection, new BasicDBObject("_id", id));
     }
 

@@ -23,4 +23,10 @@
 
 	<bean id="com.despegar.integration.mongo.default.objectMapper"
 		class="com.fasterxml.jackson.databind.ObjectMapper" />
+		
+	<bean id="com.despegar.integration.mongo.id.generator.long"
+		class="com.despegar.integration.mongo.id.LongIdGenerator" />
+			
+	<bean id="com.despegar.integration.mongo.id.generator.string"
+		class="com.despegar.integration.mongo.id.StringIdGenerator" />
 </beans>

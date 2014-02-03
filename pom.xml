@@ -7,7 +7,7 @@
 	</parent>
 	<groupId>com.despegar.integration</groupId>
 	<artifactId>mongo-connector</artifactId>
-	<version>0.1.4-SNAPSHOT</version>
+	<version>0.1.5-SNAPSHOT</version>
 	<name>Mongo Connector</name>
 	<description>Helper component to connect to mongo fast and easy</description>
 
@@ -17,23 +17,6 @@
 		<developerConnection>scm:git:git@gitlab.despegar.it:java-library/mongo-connector.git</developerConnection>
 		<url>scm:git:git@gitlab.despegar.it:java-library/mongo-connector.git</url>
 	</scm>
-
-	<developers>
-		<developer>
-			<name>Juan Manuel Formoso</name>
-			<email>jformoso@despegar.com</email>
-			<id>jformoso</id>
-			<url>http://seniorgeek.com.ar</url>
-			<roles>
-				<role>author</role>
-			</roles>
-		</developer>
-		<developer>
-			<name>Juan Francisco Montanaro</name>
-			<email>jmontanaro@despegar.com</email>
-			<id>jmontanaro</id>
-		</developer>
-	</developers>
 
 	<properties>
 		<mongo-jackson-mapper.version>2.0</mongo-jackson-mapper.version>
@@ -61,7 +44,7 @@
 		<dependency>
 			<groupId>com.despegar.integration</groupId>
 			<artifactId>domain</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.vz.mongodb.jackson</groupId>

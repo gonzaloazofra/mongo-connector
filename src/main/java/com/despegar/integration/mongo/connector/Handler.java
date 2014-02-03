@@ -4,19 +4,15 @@ import java.util.List;
 
 import org.apache.commons.lang.mutable.MutableInt;
 
+import com.despegar.integration.domain.api.GenericIdentificableEntity;
 import com.despegar.integration.domain.api.IdentificableEntity;
 import com.despegar.integration.mongo.connector.HandlerQuery.UpdateOperation;
 
-
-/**
- * Basic Handlers operations
- */
-public interface Handler<T extends IdentificableEntity> {
-
+public interface Handler<T extends GenericIdentificableEntity> {
     /**
      * Returns {@link IdentificableEntity} class instance by id
      */
-    T get(String id);
+    <X extends Object> T get(X id);
 
     /**
      * Returns the first {@link IdentificableEntity} class instance in the collection
@@ -52,19 +48,19 @@ public interface Handler<T extends IdentificableEntity> {
      * Store {@link IdentificableEntity} instance. If it already exist, it will create a new one.
      * @return the id of the {@link IdentificableEntity} instance 
      */
-    String add(T t);
+    <X extends Object> X add(T t);
 
     /**
      * Stores {@link IdentificableEntity} instance. If it already exists and an id is set, it will update the old one.
      * 
      *  @return This object (which is already a string!).
      */
-    String save(T t);
+    <X extends Object> X save(T t);
 
     /**
      * It removes the {@link IdentificableEntity} instance.
      */
-    void remove(String id);
+    <X extends Object> void remove(X id);
 
     /**
      * It removes all the elements
@@ -92,7 +88,7 @@ public interface Handler<T extends IdentificableEntity> {
      * @param upsert - Whether to create a new instance if no instance matches the filter query.
      * @return
      */
-    String update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert);
+    <X extends Object> X update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert);
 
     /**
      * Remove a set of elements of the collection that match the query    
@@ -100,5 +96,6 @@ public interface Handler<T extends IdentificableEntity> {
      */
     public abstract void remove(HandlerQuery query);
 
-    public abstract String insertIfNotPresent(final T t);
+    public abstract <X extends Object> X insertIfNotPresent(final T t);
+
 }
