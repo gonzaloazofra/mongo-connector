@@ -13,9 +13,9 @@
 
 
 	<scm>
-		<connection>scm:git:git@gitorious.despegar.it:integration/mongo-connector.git</connection>
-		<developerConnection>scm:git:git@gitorious.despegar.it:integration/mongo-connector.git</developerConnection>
-		<url>scm:git:git@gitorious.despegar.it:integration/mongo-connector.git</url>
+		<connection>scm:git:git@gitlab.despegar.it:java-library/mongo-connector.git</connection>
+		<developerConnection>scm:git:git@gitlab.despegar.it:java-library/mongo-connector.git</developerConnection>
+		<url>scm:git:git@gitlab.despegar.it:java-library/mongo-connector.git</url>
 	</scm>
 
 	<developers>
