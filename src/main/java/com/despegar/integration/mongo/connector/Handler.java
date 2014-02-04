@@ -8,6 +8,7 @@ import com.despegar.integration.domain.api.GenericIdentificableEntity;
 import com.despegar.integration.domain.api.IdentificableEntity;
 import com.despegar.integration.mongo.connector.HandlerQuery.UpdateOperation;
 
+@SuppressWarnings("rawtypes")
 public interface Handler<T extends GenericIdentificableEntity> {
     /**
      * Returns {@link IdentificableEntity} class instance by id

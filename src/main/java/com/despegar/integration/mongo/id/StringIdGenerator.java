@@ -13,7 +13,7 @@ public class StringIdGenerator
 
     @Override
     public Boolean validateId(Object id) {
-        return id != null ? StringUtils.isEmpty(id.toString()) : Boolean.FALSE;
+        return id != null ? !StringUtils.isEmpty(id.toString()) : Boolean.FALSE;
     }
 
 }

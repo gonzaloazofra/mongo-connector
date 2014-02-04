@@ -13,6 +13,7 @@ import com.despegar.integration.mongo.support.MongoDao;
 import com.despegar.integration.mongo.support.MongoDaoFactory;
 import com.mongodb.ReadPreference;
 
+@SuppressWarnings("rawtypes")
 public class MongoHandler<T extends GenericIdentificableEntity>
     implements Handler<T>, InitializingBean {
 
@@ -75,6 +76,7 @@ public class MongoHandler<T extends GenericIdentificableEntity>
         return this.mongoDao.getTotalObjectsInCollection(this.collectionName, mongoQuery.getQuery());
     }
 
+    @SuppressWarnings("unchecked")
     public <X extends Object> X add(final T t) {
         t.setId(null);
         return this.mongoDao.insert(t);

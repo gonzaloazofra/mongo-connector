@@ -24,6 +24,7 @@ import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 
+@SuppressWarnings("rawtypes")
 public class MongoDao<T extends GenericIdentificableEntity> {
 
     private DB mongoDb;
@@ -31,7 +32,6 @@ public class MongoDao<T extends GenericIdentificableEntity> {
     private JacksonDBCollection<T, Object> coll;
     private IdGenerator idGenerator;
 
-    @SuppressWarnings("unchecked")
     @Deprecated
     public MongoDao(DB mongoDb, String collection, Class<T> clazz) {
         this(mongoDb, collection, new ObjectMapper(), clazz, new StringIdGenerator());
@@ -179,8 +179,9 @@ public class MongoDao<T extends GenericIdentificableEntity> {
         return this.insert(value, WriteConcern.NORMAL);
     }
 
+    @SuppressWarnings("unchecked")
     public <X extends Object> X insert(T value, WriteConcern concern) {
-        if (this.idGenerator.validateId(value.getId())) {
+        if (!this.idGenerator.validateId(value.getId())) {
             value.setId(this.idGenerator.generateId(this.coll.getName()));
         }
 
@@ -235,9 +236,10 @@ public class MongoDao<T extends GenericIdentificableEntity> {
         return this.updateOrInsert(value, WriteConcern.SAFE);
     }
 
+    @SuppressWarnings("unchecked")
     public <X extends Object> X updateOrInsert(T value, WriteConcern concern) {
         X ret = null;
-        if (this.idGenerator.validateId(value.getId()) || this.findOne(value.getId()) == null) {
+        if (!this.idGenerator.validateId(value.getId()) || this.findOne(value.getId()) == null) {
             ret = this.insert(value, concern);
         } else {
             ret = (X) this.updateById(value.getId(), value);
