@@ -60,4 +60,8 @@ public class LongIdGenerator
     public void setMongoDb(Mongo mongoDb) {
         this.mongoDb = mongoDb;
     }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
 }
