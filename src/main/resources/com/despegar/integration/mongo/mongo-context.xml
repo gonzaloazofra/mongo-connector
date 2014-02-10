@@ -28,7 +28,7 @@
 		class="com.despegar.integration.mongo.id.LongIdGenerator"
 		p:mongoDb-ref="com.despegar.integration.mongo.db"
 		p:dbName="${com.despegar.integration.mongo.dbName}" 
-		p:countersCollectionName="${com.despegar.integration.mongo.counters:counters}"/>
+		p:counterCollectionName="${com.despegar.integration.mongo.counters:counters}"/>
 			
 	<bean id="com.despegar.integration.mongo.id.generator.string"
 		class="com.despegar.integration.mongo.id.StringIdGenerator" />
