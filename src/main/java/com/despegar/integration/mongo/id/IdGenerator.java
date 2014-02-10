@@ -6,4 +6,6 @@ public interface IdGenerator<T extends Object> {
 
     Boolean validateId(Object id);
 
+    void updateId(String collectionName, Object id);
+
 }

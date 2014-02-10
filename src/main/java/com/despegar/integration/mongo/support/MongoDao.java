@@ -240,7 +240,11 @@ public class MongoDao<T extends GenericIdentificableEntity> {
     public <X extends Object> X updateOrInsert(T value, WriteConcern concern) {
         X ret = null;
         if (!this.idGenerator.validateId(value.getId()) || this.findOne(value.getId()) == null) {
+            if (value.getId() != null) {
+                this.idGenerator.updateId(this.coll.getName(), value.getId());
+            }
             ret = this.insert(value, concern);
+
         } else {
             ret = (X) this.updateById(value.getId(), value);
         }

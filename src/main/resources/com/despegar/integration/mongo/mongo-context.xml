@@ -25,7 +25,9 @@
 		class="com.fasterxml.jackson.databind.ObjectMapper" />
 		
 	<bean id="com.despegar.integration.mongo.id.generator.long"
-		class="com.despegar.integration.mongo.id.LongIdGenerator" />
+		class="com.despegar.integration.mongo.id.LongIdGenerator"
+		p:mongoDb-ref="com.despegar.integration.mongo.db" 
+		p:countersCollectionName="${com.despegar.integration.mongo.counters:counters}"/>
 			
 	<bean id="com.despegar.integration.mongo.id.generator.string"
 		class="com.despegar.integration.mongo.id.StringIdGenerator" />

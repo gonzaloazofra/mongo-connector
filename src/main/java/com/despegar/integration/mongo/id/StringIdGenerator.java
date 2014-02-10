@@ -16,4 +16,9 @@ public class StringIdGenerator
         return id != null ? !StringUtils.isEmpty(id.toString()) : Boolean.FALSE;
     }
 
+    @Override
+    public void updateId(String collectionName, Object id) {
+        // nothing to do
+    }
+
 }
