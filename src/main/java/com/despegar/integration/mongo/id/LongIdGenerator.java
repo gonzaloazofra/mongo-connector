@@ -6,17 +6,20 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 
 public class LongIdGenerator
     implements IdGenerator<Long>, InitializingBean {
 
-    private DB mongoDb;
+    private Mongo mongoDb;
+    private String dbName;
     private String counterCollectionName;
     private DBCollection collection;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.collection = this.mongoDb.getCollection(this.counterCollectionName);
+        DB db = this.mongoDb.getDB(this.dbName);
+        this.collection = db.getCollection(this.counterCollectionName);
     }
 
     @Override
@@ -25,10 +28,10 @@ public class LongIdGenerator
         query.put("_id", collectionName);
 
         DBObject update = new BasicDBObject();
-        update.put("$inc", "{sec:1}");
+        update.put("$inc", new BasicDBObject("sec", 1));
 
-        DBObject response = this.collection.findAndModify(query, null, null, Boolean.FALSE, update, Boolean.TRUE,
-            Boolean.TRUE);
+        DBObject response = this.collection.findAndModify(query, new BasicDBObject(), new BasicDBObject(), Boolean.FALSE,
+            update, Boolean.TRUE, Boolean.TRUE);
 
         return (Long) response.get("sec");
     }
@@ -41,20 +44,20 @@ public class LongIdGenerator
     @Override
     public void updateId(String collectionName, Object id) {
         DBObject query = new BasicDBObject();
-        query.put("sec", new BasicDBObject("$gt", id));
+        query.put("sec", new BasicDBObject("$lte", id));
         query.put("_id", collectionName);
 
         DBObject update = new BasicDBObject();
-        update.put("$inc", new BasicDBObject("sec", 1));
+        update.put("sec", id);
 
-        this.collection.update(query, update, Boolean.TRUE, Boolean.FALSE);
+        this.collection.update(query, update, Boolean.TRUE, Boolean.TRUE);
     }
 
     public void setCounterCollectionName(String counterCollectionName) {
         this.counterCollectionName = counterCollectionName;
     }
 
-    public void setMongoDb(DB mongoDb) {
+    public void setMongoDb(Mongo mongoDb) {
         this.mongoDb = mongoDb;
     }
 }
