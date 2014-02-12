@@ -43,14 +43,21 @@ public class LongIdGenerator
 
     @Override
     public void updateId(String collectionName, Object id) {
-        DBObject query = new BasicDBObject();
-        query.put("sec", new BasicDBObject("$lte", id));
-        query.put("_id", collectionName);
+        DBObject existsQuery = new BasicDBObject();
+        existsQuery.put("_id", collectionName);
+
+        if (this.collection.findOne(existsQuery) == null) {
+            existsQuery.put("sec", id);
+            this.collection.insert(existsQuery);
+            return;
+        }
+
+        existsQuery.put("sec", new BasicDBObject("$lte", id));
 
         DBObject update = new BasicDBObject();
         update.put("sec", id);
 
-        this.collection.update(query, update, Boolean.TRUE, Boolean.TRUE);
+        this.collection.update(existsQuery, update, Boolean.TRUE, Boolean.TRUE);
     }
 
     public void setCounterCollectionName(String counterCollectionName) {
