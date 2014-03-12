@@ -64,6 +64,11 @@ public class MongoHandler<T extends IdentificableEntity>
         return this.mongoDao.find(mongoQuery.getQuery(), null, mongoQuery.getSortInfo(), mongoQuery.getPage(), count,
             this.isCrucialDataIntegration(query));
     }
+    
+    public List<T> getAll(HandlerQuery query, MutableInt count, Integer pagingOffset, Integer pagingLimit) {
+        query.setPage(new Page(pagingOffset, pagingLimit));
+        return this.getAll(query, count);
+    }
 
     public Integer count(final HandlerQuery query) {
         if (query == null) {

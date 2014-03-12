@@ -47,6 +47,17 @@ public interface Handler<T extends IdentificableEntity> {
      * Returns all {@link IdentificableEntity} class instances that match the query
      */
     List<T> getAll(HandlerQuery query, MutableInt count);
+    
+    /**
+     * @param query
+     * @param count passed as an out parameter to get the count
+     * @param pagingOffset current results page
+     * @param pagingLimit current page results amount
+     * @return
+     * 
+     * Returns all {@link IdentificableEntity} class instances that match the query
+     */
+    List<T> getAll(HandlerQuery query, MutableInt count, Integer pagingOffset, Integer pagingLimit);
 
     /**
      * Store {@link IdentificableEntity} instance. If it already exist, it will create a new one.
