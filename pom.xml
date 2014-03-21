@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>com.despegar.integration</groupId>
 			<artifactId>domain</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
+			<version>0.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>net.vz.mongodb.jackson</groupId>

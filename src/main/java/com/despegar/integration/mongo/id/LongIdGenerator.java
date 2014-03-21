@@ -57,7 +57,7 @@ public class LongIdGenerator
         DBObject update = new BasicDBObject();
         update.put("sec", id);
 
-        this.collection.update(existsQuery, update, Boolean.TRUE, Boolean.TRUE);
+        this.collection.update(existsQuery, update);
     }
 
     public void setCounterCollectionName(String counterCollectionName) {
