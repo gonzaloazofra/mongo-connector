@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.springframework.beans.factory.InitializingBean;
 
-import com.despegar.integration.domain.api.IdentificableEntity;
+import com.despegar.integration.domain.api.GenericIdentificableEntity;
 import com.despegar.integration.mongo.connector.Handler;
 import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.Page;
@@ -13,21 +13,23 @@ import com.despegar.integration.mongo.support.MongoDao;
 import com.despegar.integration.mongo.support.MongoDaoFactory;
 import com.mongodb.ReadPreference;
 
-public class MongoHandler<T extends IdentificableEntity>
+@SuppressWarnings("rawtypes")
+public class MongoHandler<T extends GenericIdentificableEntity>
     implements Handler<T>, InitializingBean {
 
     private MongoDaoFactory mongoDaoFactory;
     protected Class<T> clazz;
-    public String collectionName;
+    private String collectionName;
 
     protected MongoDao<T> mongoDao;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void afterPropertiesSet() throws Exception {
         this.mongoDao = this.mongoDaoFactory.getInstance(this.collectionName, this.clazz);
     }
 
-    public T get(final String id) {
+    public <X extends Object> T get(final X id) {
         return this.mongoDao.findOne(id);
     }
 
@@ -79,32 +81,34 @@ public class MongoHandler<T extends IdentificableEntity>
         return this.mongoDao.getTotalObjectsInCollection(this.collectionName, mongoQuery.getQuery());
     }
 
-    public String add(final T t) {
+    @SuppressWarnings("unchecked")
+    public <X extends Object> X add(final T t) {
         t.setId(null);
         return this.mongoDao.insert(t);
     }
 
     @Override
-    public String insertIfNotPresent(final T t) {
+    public <X extends Object> X insertIfNotPresent(final T t) {
         return this.mongoDao.insert(t);
     }
 
-    public String save(final T t) {
-        return this.mongoDao.updateOrInsert(t).toString();
+    public <X extends Object> X save(final T t) {
+        return this.mongoDao.updateOrInsert(t);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public String update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert) {
+    public <X extends Object> X update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert) {
         final MongoHandlerQuery mongoQuery = new MongoHandlerQuery(query);
         final MongoHandlerQuery mongoUpdateQuery = new MongoHandlerQuery(updateQuery);
         Object[] res = (Object[]) this.mongoDao.update(mongoQuery.getQuery(), mongoUpdateQuery.getQuery(), upsert);
         if (res.length == 1) {
-            return res[0].toString();
+            return (X) res[0];
         }
         return null;
     }
 
-    public void remove(final String id) {
+    public <X extends Object> void remove(final X id) {
         this.mongoDao.delete(this.collectionName, id);
     }
 

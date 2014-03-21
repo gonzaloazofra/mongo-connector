@@ -12,6 +12,7 @@ import com.despegar.integration.mongo.support.MongoDaoFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+@Deprecated
 public class MongoHandlerContainer<T extends IdentificableEntity>
     implements HandlerContainer<T> {
 
