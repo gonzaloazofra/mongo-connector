@@ -48,6 +48,12 @@ public class HandlerQuery {
     public HandlerQuery() {
     }
 
+    /**
+     * Search the key value (field filter)
+     * @param key
+     * @param value
+     * @return
+     */
     public HandlerQuery put(String key, Object value) {
 
         if (key != null) {
@@ -58,8 +64,21 @@ public class HandlerQuery {
     }
 
     /**
-     * Search the key value matching the operation described over the values present in the collection
+     * Search the key - values in the provided filters map
+     * @param filters
+     * @return
+     */
+    public HandlerQuery putAll(Map<String, Object> filters) {
+
+        this.getFilters().putAll(filters);
+
+        return this;
+    }
+
+    /**
+     * Search the key value matching the range operation described over the values present in the collection
      * @param key
+     * @param operator
      * @param values
      * @return
      */
@@ -86,7 +105,8 @@ public class HandlerQuery {
     /**
      * Search the key value matching the comparison operation with the value
      * @param key
-     * @param values
+     * @param operator
+     * @param value
      * @return
      */
     public HandlerQuery put(String key, ComparisonOperation operator, Object value) {
@@ -107,7 +127,8 @@ public class HandlerQuery {
     /**
      * Search the key value matching the math operation with the value
      * @param key
-     * @param values
+     * @param operator
+     * @param value
      * @return
      */
     public HandlerQuery put(String key, MathOperation operator, Object value) {
@@ -130,6 +151,9 @@ public class HandlerQuery {
     @SuppressWarnings("unchecked")
     public HandlerQuery addOrderCriteria(String fieldName, OrderDirection direction) {
         Assert.notNull(fieldName, "Field name for sorting criteria is required.");
+        if (direction == null) {
+            return this.addOrderCriteria(fieldName);
+        }
         this.orderFields.put(fieldName, direction);
         return this;
     }
