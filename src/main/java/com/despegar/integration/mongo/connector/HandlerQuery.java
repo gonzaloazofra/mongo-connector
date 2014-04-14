@@ -32,8 +32,17 @@ public class HandlerQuery {
         SET, UNSET, INC, RENAME, ADD_TO_SET, POP, PULL_ALL, PULL, PUSH
     }
 
+    public static enum GeometryOperation {
+        WITH_IN, INTERSECTS, NEAR, NEAR_SPHERE
+    }
+
+    public static enum GeometrySpecifiers {
+        GEOMETRY, MAX_DISTANCE, CENTER, CENTER_SPHERE, BOX, POLYGON, UNIQUE_DOCS
+    }
+
     private Map<String, OperationWithComparison> comparisonOperators = new HashMap<String, OperationWithComparison>();
     private Map<String, OperationWithRange> rangeOperators = new HashMap<String, OperationWithRange>();
+    private Map<String, OperationWithGeospatialFunction> geospatialOperators = new HashMap<String, OperationWithGeospatialFunction>();
     private Map<String, OperationWithMathFunction> mathOperators = new HashMap<String, OperationWithMathFunction>();
     private Map<String, Object> filters = new HashMap<String, Object>();
     private OrderedMap orderFields = new ListOrderedMap();
@@ -141,6 +150,22 @@ public class HandlerQuery {
     }
 
     /**
+     * Search the key value matching the geospatial operation with the value
+     * @param key
+     * @param operator
+     * @param value
+     * @return
+     */
+    public HandlerQuery put(String key, GeometryOperation operator, Map<GeometrySpecifiers, Object> value) {
+        return this.put(key, operator, value, false);
+    }
+
+    public HandlerQuery put(String key, GeometryOperation operator, Map<GeometrySpecifiers, Object> value, boolean negation) {
+        this.getGeospatialOperators().put(key, new OperationWithGeospatialFunction(operator, value, negation));
+        return this;
+    }
+
+    /**
      * Add a field for sorting purpose, with a default direction (asc)
      */
     public HandlerQuery addOrderCriteria(String fieldName) {
@@ -201,6 +226,13 @@ public class HandlerQuery {
             this.comparisonOperators = new HashMap<String, HandlerQuery.OperationWithComparison>();
         }
         return this.comparisonOperators;
+    }
+
+    public Map<String, OperationWithGeospatialFunction> getGeospatialOperators() {
+        if (this.geospatialOperators == null) {
+            this.geospatialOperators = new HashMap<String, HandlerQuery.OperationWithGeospatialFunction>();
+        }
+        return this.geospatialOperators;
     }
 
     public HandlerQuery or(HandlerQuery anotherQuery) {
@@ -309,6 +341,32 @@ public class HandlerQuery {
 
         public Object getValues() {
             return this.values;
+        }
+
+        public boolean isNegation() {
+            return this.negation;
+        }
+    }
+
+    public static class OperationWithGeospatialFunction {
+        private GeometryOperation geometryOperation;
+        private Map<GeometrySpecifiers, Object> geometrySpecifiers;
+        private boolean negation;
+
+        public OperationWithGeospatialFunction(GeometryOperation geometryOperation,
+            Map<GeometrySpecifiers, Object> gemetrySpecifiers, boolean negation) {
+            super();
+            this.geometryOperation = geometryOperation;
+            this.geometrySpecifiers = gemetrySpecifiers;
+            this.negation = negation;
+        }
+
+        public GeometryOperation getGeometryOperation() {
+            return this.geometryOperation;
+        }
+
+        public Map<GeometrySpecifiers, Object> getGeometrySpecifiers() {
+            return this.geometrySpecifiers;
         }
 
         public boolean isNegation() {

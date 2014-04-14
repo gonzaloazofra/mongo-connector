@@ -3,6 +3,7 @@ package com.despegar.integration.mongo.connector.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -10,8 +11,11 @@ import org.apache.commons.collections.OrderedMapIterator;
 
 import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.HandlerQuery.ComparisonOperation;
+import com.despegar.integration.mongo.connector.HandlerQuery.GeometryOperation;
+import com.despegar.integration.mongo.connector.HandlerQuery.GeometrySpecifiers;
 import com.despegar.integration.mongo.connector.HandlerQuery.MathOperation;
 import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithComparison;
+import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithGeospatialFunction;
 import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithMathFunction;
 import com.despegar.integration.mongo.connector.HandlerQuery.OperationWithRange;
 import com.despegar.integration.mongo.connector.HandlerQuery.OrderDirection;
@@ -81,6 +85,7 @@ public class MongoHandlerQuery {
         this.appendRangeOperations(query, dbQuery);
         this.appendComparisionOperations(query, dbQuery);
         this.appendMathOperations(query, dbQuery);
+        this.appendGeometryOperations(query, dbQuery);
 
         return dbQuery;
     }
@@ -177,6 +182,55 @@ public class MongoHandlerQuery {
         return mathOperation;
     }
 
+    private String getGeometryOperation(final GeometryOperation operation) {
+        String geometryOperation = null;
+        switch (operation) {
+        case WITH_IN:
+            geometryOperation = "$geoWithin";
+            break;
+        case INTERSECTS:
+            geometryOperation = "$geoIntersects";
+            break;
+        case NEAR:
+            geometryOperation = "$near";
+            break;
+        case NEAR_SPHERE:
+            geometryOperation = "$nearSphere";
+            break;
+        }
+
+        return geometryOperation;
+    }
+
+    private String getGeometrySpecifier(final GeometrySpecifiers operation) {
+        String geometrySpecifier = null;
+        switch (operation) {
+        case BOX:
+            geometrySpecifier = "$box";
+            break;
+        case CENTER:
+            geometrySpecifier = "$center";
+            break;
+        case CENTER_SPHERE:
+            geometrySpecifier = "$centerSphere";
+            break;
+        case GEOMETRY:
+            geometrySpecifier = "$geometry";
+            break;
+        case MAX_DISTANCE:
+            geometrySpecifier = "$maxDistance";
+            break;
+        case POLYGON:
+            geometrySpecifier = "$polygon";
+            break;
+        case UNIQUE_DOCS:
+            geometrySpecifier = "$uniqueDocs";
+            break;
+        }
+
+        return geometrySpecifier;
+    }
+
     private BasicDBObject appendComparisionOperations(final HandlerQuery query, final BasicDBObject dbQuery) {
         final Set<Entry<String, OperationWithComparison>> comparison = query.getComparisonOperators().entrySet();
 
@@ -219,6 +273,29 @@ public class MongoHandlerQuery {
                 rangeClause = new BasicDBObject("$not", rangeClause);
             }
             dbQuery.append(key, rangeClause);
+        }
+    }
+
+    private void appendGeometryOperations(final HandlerQuery query, final BasicDBObject dbQuery) {
+        final Set<Entry<String, OperationWithGeospatialFunction>> geoOperations = query.getGeospatialOperators().entrySet();
+        for (final Entry<String, OperationWithGeospatialFunction> entry : geoOperations) {
+            final String key = entry.getKey();
+            final GeometryOperation operation = entry.getValue().getGeometryOperation();
+            final Map<GeometrySpecifiers, Object> specifiers = entry.getValue().getGeometrySpecifiers();
+
+            String geometryOperation = this.getGeometryOperation(operation);
+            DBObject specifierProperties = new BasicDBObject();
+            for (Entry<GeometrySpecifiers, Object> specifier : specifiers.entrySet()) {
+                String geometrySpecifier = this.getGeometrySpecifier(specifier.getKey());
+                specifierProperties.put(geometrySpecifier, specifier.getValue());
+            }
+
+            DBObject geoClause = new BasicDBObject(geometryOperation, specifierProperties);
+
+            if (entry.getValue().isNegation()) {
+                geoClause = new BasicDBObject("$not", geoClause);
+            }
+            dbQuery.append(key, geoClause);
         }
     }
 
