@@ -66,7 +66,7 @@ public class MongoHandler<T extends GenericIdentificableEntity>
         return this.mongoDao.find(mongoQuery.getQuery(), null, mongoQuery.getSortInfo(), mongoQuery.getPage(), count,
             this.isCrucialDataIntegration(query));
     }
-    
+
     public List<T> getAll(HandlerQuery query, MutableInt count, Integer pagingOffset, Integer pagingLimit) {
         query.setPage(new Page(pagingOffset, pagingLimit));
         return this.getAll(query, count);
@@ -136,6 +136,11 @@ public class MongoHandler<T extends GenericIdentificableEntity>
 
     public List<?> distinct(String key) {
         return this.mongoDao.distinct(key);
+    }
+
+    public List<?> distinct(String key, HandlerQuery query) {
+        MongoHandlerQuery q = new MongoHandlerQuery(query);
+        return this.mongoDao.distinct(key, q.getQuery());
     }
 
     private ReadPreference isCrucialDataIntegration(HandlerQuery query) {
