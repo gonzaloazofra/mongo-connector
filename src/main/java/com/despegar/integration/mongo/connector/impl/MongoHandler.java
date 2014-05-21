@@ -150,4 +150,10 @@ public class MongoHandler<T extends GenericIdentificableEntity>
 
         return null;
     }
+
+    @Override
+    public boolean exists(HandlerQuery query) {
+        MongoHandlerQuery q = new MongoHandlerQuery(query);
+        return this.mongoDao.exists(q.getQuery());
+    }
 }

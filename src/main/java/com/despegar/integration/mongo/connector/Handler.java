@@ -103,6 +103,14 @@ public interface Handler<T extends GenericIdentificableEntity> {
     <X extends Object> X update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert);
 
     /**
+     * Checks if a query would return any elements.
+     * 
+     * @param query - Query to filter the documents
+     * @return if there are elements for the given query
+     */
+    boolean exists(final HandlerQuery query);
+
+    /**
      * Remove a set of elements of the collection that match the query    
      * @param query
      */

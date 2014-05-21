@@ -296,5 +296,10 @@ public class MongoDao<T extends GenericIdentificableEntity> {
         coll.ensureIndex(index);
     }
 
+    public boolean exists(DBObject query) {
+        DBCursor cursor = this.coll.find(query).limit(1);
+        return cursor.hasNext();
+    }
+
 
 }
