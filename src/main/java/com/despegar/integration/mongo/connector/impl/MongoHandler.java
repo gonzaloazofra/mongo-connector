@@ -108,6 +108,16 @@ public class MongoHandler<T extends GenericIdentificableEntity>
         return null;
     }
 
+    @Override
+    public T getAndUpdate(final HandlerQuery query, boolean remove, final HandlerQuery updateQuery, boolean returnNew,
+        boolean upsert) {
+        MongoHandlerQuery mhq = new MongoHandlerQuery(query);
+        MongoHandlerQuery mhqUpdate = new MongoHandlerQuery(updateQuery);
+
+        return this.mongoDao.findAndModify(mhq.getQuery(), null, mhq.getSortInfo(), remove, mhqUpdate.getQuery(), returnNew,
+            upsert);
+    }
+
     public <X extends Object> void remove(final X id) {
         this.mongoDao.delete(this.collectionName, id);
     }
