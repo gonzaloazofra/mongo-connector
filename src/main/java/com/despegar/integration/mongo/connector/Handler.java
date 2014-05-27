@@ -103,6 +103,19 @@ public interface Handler<T extends GenericIdentificableEntity> {
     <X extends Object> X update(final HandlerQuery query, final HandlerQuery updateQuery, boolean upsert);
 
     /**
+     * Get a document from a collection and update it based on the updateQuery in an atomic operation.
+     *
+     * @param query - Query to match.
+     * @param remove - If true document found will be removed.
+     * @param updateQuery - Update to apply.
+     * @param returnNew - If true, the updated document is returned, otherwise the old document is returned (or it would be lost forever)
+     * @param upsert - If true insert if document is not present.
+     * @return The old or new document based on the 'returnNew' parameter option.
+     */
+    public T getAndUpdate(final HandlerQuery query, boolean remove, final HandlerQuery updateQuery, boolean returnNew,
+        boolean insertIfnotPresent);
+
+    /**
      * Checks if a query would return any elements.
      * 
      * @param query - Query to filter the documents
