@@ -1,13 +1,10 @@
 package com.despegar.integration.mongo.support;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import net.vz.mongodb.jackson.DBCursor;
-import net.vz.mongodb.jackson.JacksonDBCollection;
-import net.vz.mongodb.jackson.WriteResult;
-import net.vz.mongodb.jackson.internal.MongoJacksonMapperModule;
 
 import org.apache.commons.lang.mutable.MutableInt;
 
@@ -16,37 +13,47 @@ import com.despegar.integration.mongo.connector.Page;
 import com.despegar.integration.mongo.id.IdGenerator;
 import com.despegar.integration.mongo.id.StringIdGenerator;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import com.mongodb.AggregationOptions;
+import com.mongodb.AggregationOutput;
 import com.mongodb.BasicDBObject;
+import com.mongodb.Cursor;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
 
 @SuppressWarnings("rawtypes")
 public class MongoDao<T extends GenericIdentificableEntity> {
 
     private DB mongoDb;
     private Class<T> clazz;
-    private JacksonDBCollection<T, Object> coll;
+    private DBCollection coll;
     private IdGenerator idGenerator;
+    private ObjectMapper mapper;
 
     @Deprecated
-    public MongoDao(DB mongoDb, String collection, Class<T> clazz) {
+    public MongoDao(DB mongoDb, String collection, Class<T> clazz) throws UnknownHostException {
         this(mongoDb, collection, new ObjectMapper(), clazz, new StringIdGenerator());
     }
 
-    public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz, IdGenerator idGenerator) {
+    public MongoDao(DB mongoDb, String collection, ObjectMapper mapper, Class<T> clazz, IdGenerator idGenerator)
+        throws UnknownHostException {
         this.mongoDb = mongoDb;
         this.clazz = clazz;
         this.idGenerator = idGenerator;
+        this.mapper = mapper;
 
-        mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
-        mapper.setSerializationInclusion(Include.NON_NULL);
-        MongoJacksonMapperModule.configure(mapper);
+        this.mapper.setPropertyNamingStrategy(new IdWithUnderscoreStrategy());
+        this.mapper.setSerializationInclusion(Include.NON_NULL);
+        this.mapper.registerModule(new AfterburnerModule());
 
-        this.coll = JacksonDBCollection.wrap(this.mongoDb.getCollection(collection), this.clazz, Object.class, mapper);
+        this.coll = this.mongoDb.getCollection(collection);
     }
 
     public T findOne() {
@@ -82,7 +89,10 @@ public class MongoDao<T extends GenericIdentificableEntity> {
     }
 
     public <X extends Object> T findOne(X id) {
-        return this.coll.findOneById(id, new BasicDBObject());
+        BasicDBObject o = new BasicDBObject();
+        o.append("_id", id);
+        DBObject dbObject = this.coll.findOne(o);
+        return this.serialize(dbObject);
     }
 
     public List<T> find() {
@@ -139,7 +149,7 @@ public class MongoDao<T extends GenericIdentificableEntity> {
 
     public List<T> find(DBObject query, DBObject fields, DBObject sortInfo, Page page, MutableInt count,
         ReadPreference readPreference) {
-        DBCursor<T> cursor = this.coll.find(query, fields);
+        DBCursor cursor = this.coll.find(query, fields);
 
         if (count != null) {
             count.setValue(cursor.count());
@@ -160,7 +170,8 @@ public class MongoDao<T extends GenericIdentificableEntity> {
 
         List<T> ret = new ArrayList<T>();
         while (cursor.hasNext()) {
-            ret.add(cursor.next());
+            DBObject next = cursor.next();
+            ret.add(this.serialize(next));
         }
 
         return ret;
@@ -168,7 +179,7 @@ public class MongoDao<T extends GenericIdentificableEntity> {
 
     public T findAndModify(DBObject query, DBObject fields, DBObject sort, boolean remove, DBObject update,
         boolean returnNew, boolean upsert) {
-        return this.coll.findAndModify(query, fields, sort, remove, update, returnNew, upsert);
+        return this.serialize(this.coll.findAndModify(query, fields, sort, remove, update, returnNew, upsert));
     }
 
     public List<?> distinct(String key) {
@@ -185,15 +196,15 @@ public class MongoDao<T extends GenericIdentificableEntity> {
             value.setId(this.idGenerator.generateId(this.coll.getName()));
         }
 
-        WriteResult<T, Object> insert = this.coll.insert(value, concern);
+        WriteResult insert = this.coll.insert(this.deserialize(value), concern);
 
-        return (X) insert.getSavedObject().getId();
+        return (X) insert.getUpsertedId();
     }
 
     public Object update(DBObject query, DBObject value, boolean upsert, boolean multi, WriteConcern concern) {
-        WriteResult<T, Object> update = this.coll.update(query, value, upsert, multi, concern);
+        WriteResult update = this.coll.update(query, value, upsert, multi, concern);
 
-        return update.getSavedIds();
+        return update.getUpsertedId();
     }
 
     public Object update(BasicDBObject query, BasicDBObject value, boolean upsert) {
@@ -209,9 +220,9 @@ public class MongoDao<T extends GenericIdentificableEntity> {
     }
 
     public Object update(T query, T value, boolean upsert, boolean multi, WriteConcern concern) {
-        WriteResult<T, Object> update = this.coll.update(query, value, upsert, multi, concern);
+        WriteResult update = this.coll.update(this.deserialize(query), this.deserialize(value), upsert, multi, concern);
 
-        return update.getSavedIds();
+        return update.getUpsertedId();
     }
 
     public Object update(T query, T value, boolean upsert) {
@@ -227,7 +238,9 @@ public class MongoDao<T extends GenericIdentificableEntity> {
     }
 
     public <X extends Object> X updateById(X id, T value) {
-        this.coll.updateById(id, value);
+        DBObject o = new BasicDBObject();
+        o.put("_id", id);
+        this.coll.update(o, this.deserialize(value));
 
         return id;
     }
@@ -289,8 +302,64 @@ public class MongoDao<T extends GenericIdentificableEntity> {
 
     public void ensureIndex(String collection, DBObject index) {
         DBCollection coll = this.mongoDb.getCollection(collection);
-        coll.ensureIndex(index);
+        coll.createIndex(index);
     }
 
+    public <X extends Object> List<X> aggregate(List<DBObject> pipeline, Class<X> resultClazz) {
+        AggregationOutput aggregationOutput = this.coll.aggregate(pipeline);
+        Iterable<DBObject> results = aggregationOutput.results();
+        Iterator<DBObject> iterator = results.iterator();
+        List<X> ret = new ArrayList<X>();
+        while (iterator.hasNext()) {
+            ret.add(this.serialize(iterator.next(), resultClazz));
+        }
+        return ret;
+    }
 
+    public <X extends Object> List<X> aggregate(List<DBObject> pipeline, AggregationOptions options, Class<X> resultClazz) {
+        Cursor cursor = this.coll.aggregate(pipeline, options);
+
+        List<X> ret = new ArrayList<X>();
+        while (cursor.hasNext()) {
+            ret.add(this.serialize(cursor.next(), resultClazz));
+        }
+        return ret;
+    }
+
+    public <X extends Object> List<X> aggregate(List<DBObject> pipeline, ReadPreference readPreference, Class<X> resultClazz) {
+        AggregationOutput aggregationOutput = this.coll.aggregate(pipeline, readPreference);
+        Iterable<DBObject> results = aggregationOutput.results();
+        Iterator<DBObject> iterator = results.iterator();
+        List<X> ret = new ArrayList<X>();
+        while (iterator.hasNext()) {
+            ret.add(this.serialize(iterator.next(), resultClazz));
+        }
+        return ret;
+    }
+
+    public <X extends Object> List<X> aggregate(List<DBObject> pipeline, AggregationOptions options,
+        ReadPreference readPreference, Class<X> resultClazz) {
+        Cursor cursor = this.coll.aggregate(pipeline, options, readPreference);
+
+        List<X> ret = new ArrayList<X>();
+        while (cursor.hasNext()) {
+            ret.add(this.serialize(cursor.next(), resultClazz));
+        }
+        return ret;
+    }
+
+    private T serialize(DBObject o) {
+        return this.serialize(o, this.clazz);
+    }
+
+    private DBObject deserialize(T o) {
+        return this.mapper.convertValue(o, BasicDBObject.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <X extends Object> X serialize(DBObject o, Class<X> resultClazz) {
+        JavaType constructType = this.mapper.constructType(resultClazz);
+        Object convertValue = this.mapper.convertValue(o, constructType);
+        return (X) convertValue;
+    }
 }

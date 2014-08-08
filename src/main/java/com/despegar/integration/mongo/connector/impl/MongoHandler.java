@@ -7,6 +7,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.despegar.integration.domain.api.GenericIdentificableEntity;
 import com.despegar.integration.mongo.connector.Handler;
+import com.despegar.integration.mongo.connector.HandlerAggregationQuery;
 import com.despegar.integration.mongo.connector.HandlerQuery;
 import com.despegar.integration.mongo.connector.Page;
 import com.despegar.integration.mongo.support.MongoDao;
@@ -46,7 +47,6 @@ public class MongoHandler<T extends GenericIdentificableEntity>
         return this.mongoDao.findOne(mhq.getQuery(), mhq.getSortInfo(), mhq.getPage());
     }
 
-
     public List<T> getAll() {
         return this.getAll(null);
     }
@@ -66,7 +66,7 @@ public class MongoHandler<T extends GenericIdentificableEntity>
         return this.mongoDao.find(mongoQuery.getQuery(), null, mongoQuery.getSortInfo(), mongoQuery.getPage(), count,
             this.isCrucialDataIntegration(query));
     }
-    
+
     public List<T> getAll(HandlerQuery query, MutableInt count, Integer pagingOffset, Integer pagingLimit) {
         query.setPage(new Page(pagingOffset, pagingLimit));
         return this.getAll(query, count);
@@ -120,6 +120,12 @@ public class MongoHandler<T extends GenericIdentificableEntity>
 
     public void removeAll() {
         this.mongoDao.dropCollection(this.collectionName);
+    }
+
+    public <X extends Object> List<X> geoNear(HandlerAggregationQuery query, Class<X> returnClazz) {
+        MongoHandlerAggregationQuery mongoHandlerAggregationQuery = new MongoHandlerAggregationQuery(query);
+        List<X> aggregate = this.mongoDao.aggregate(mongoHandlerAggregationQuery.getQuery(), returnClazz);
+        return aggregate;
     }
 
     public void setCollectionName(final String collectionName) {

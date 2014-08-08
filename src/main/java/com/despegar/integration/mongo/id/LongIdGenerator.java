@@ -2,23 +2,22 @@ package com.despegar.integration.mongo.id;
 
 import org.springframework.beans.factory.InitializingBean;
 
+import com.despegar.integration.mongo.support.MongoDBConnection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import com.mongodb.Mongo;
 
 public class LongIdGenerator
     implements IdGenerator<Long>, InitializingBean {
 
-    private Mongo mongoDb;
-    private String dbName;
+    private MongoDBConnection mongoDBConnection;
     private String counterCollectionName;
     private DBCollection collection;
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        DB db = this.mongoDb.getDB(this.dbName);
+        DB db = this.mongoDBConnection.getDb();
         this.collection = db.getCollection(this.counterCollectionName);
     }
 
@@ -64,11 +63,7 @@ public class LongIdGenerator
         this.counterCollectionName = counterCollectionName;
     }
 
-    public void setMongoDb(Mongo mongoDb) {
-        this.mongoDb = mongoDb;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
+    public void setMongoDBConnection(MongoDBConnection mongoDBConnection) {
+        this.mongoDBConnection = mongoDBConnection;
     }
 }
