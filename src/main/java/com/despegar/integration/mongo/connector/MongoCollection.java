@@ -70,7 +70,7 @@ public class MongoCollection<T extends GenericIdentifiableEntity<?>> {
         final MongoQuery mhq = new MongoQuery(query);
         final MongoUpdate mu = new MongoUpdate(update);
 
-        return this.mongoDao.findAndModify(mhq.getQuery(), null, Boolean.FALSE, mu.getUpdate());
+        return this.mongoDao.findAndModify((query == null) ? null : mhq.getQuery(), null, Boolean.FALSE, mu.getUpdate());
     }
 
     public Integer count(final Query query) {
